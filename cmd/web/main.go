@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/asadhayat1068/gowebdev_toptal_udemy/pkg/config"
 	"github.com/asadhayat1068/gowebdev_toptal_udemy/pkg/handlers"
 	"github.com/asadhayat1068/gowebdev_toptal_udemy/pkg/render"
@@ -12,9 +14,20 @@ import (
 
 const PORT = ":8080"
 
+var app config.AppConfig
+
+var session *scs.SessionManager
+
 func main() {
 	// Init App Configs
-	var app config.AppConfig
+	app.InProduction = false
+	session = scs.New()
+	session.Lifetime = 24 * time.Hour
+	session.Cookie.Persist = true
+	session.Cookie.Persist = app.InProduction
+	session.Cookie.SameSite = http.SameSiteLaxMode
+	app.Session = session
+
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("Cannot create template cache")
